@@ -7,8 +7,8 @@ public class matrix {
     private int rowAmount, columnAmount;
     private double epsilon;
     private double [] sums;
-    private int [] notNullCombination;
     private int[] combination;
+    private int[] notNullCombination;
 
     private void create(int k, int l) {
         this.array = new double[k][];
@@ -36,19 +36,21 @@ public class matrix {
         rowAmount = Integer.parseInt(sn[0]);
         columnAmount = Integer.parseInt(sn[1]) + 1;
         epsilon = Math.pow(10, -Double.parseDouble(sn[2]) - 1);
-        this.create(rowAmount, columnAmount);
+        combination = new int[rowAmount];
         notNullCombination = new int[rowAmount];
-        combination = notNullCombination;
+        this.create(rowAmount, columnAmount);
         int i, j;
         for (i = 0; i < rowAmount; i++) {
             str = scan.nextLine();
             sn = pat.split(str);
-            notNullCombination[i] = i;                 //init combintaion array
+            combination[i] = i; //init combintaion array
+            notNullCombination[i] = i;
             for (j = 0; j < columnAmount; j++)
                 array[i][j] = Double.parseDouble(sn[j]);
         }
         scan.close();
         sums = sumOfLines(array);
+
     }
 
     //comparing with 0, considering accuracy
@@ -59,24 +61,33 @@ public class matrix {
 
     public boolean checkForZeros() {
         for (int i = 0; i < rowAmount; i++)
-            if (compareToZero(array[combination[i]][combination[i]]))
+            if (compareToZero(array[combination[i]][i]))
                 return false;
         return true;
     }
 
     //проверка ДУС нашей изначальной системы
-    public boolean checkSCC(){
+    public boolean checkSCC() {
         boolean strictlyMore = false;
+        boolean haveZeroes = false;
+        boolean SCCworked = true;
         for (int i = 0; i < rowAmount; i++) {
-            double sum =  Math.abs(sums[combination[i]])  - Math.abs(array[combination[i]][combination[i]]) - Math.abs(array[combination[i]][combination[i]]);
+            if (compareToZero(array[combination[i]][i])) haveZeroes = true;
+            double sum =  Math.abs(sums[combination[i]])  - Math.abs(array[combination[i]][i]) - Math.abs(array[combination[i]][i]);
             if (sum < 0){
                 if (sum <= 0)
                     strictlyMore = true;
             }
-            else return false;
+            else SCCworked = false;
         }
-        return strictlyMore;
+        //for (int value : notNullCombination) System.out.print(value);
+        //System.out.println();
+        if (!haveZeroes) System.arraycopy(combination, 0, notNullCombination, 0, rowAmount);
+        //printCombination();
+        return strictlyMore && SCCworked;
     }
+
+
     //поиск сумм строк матрицы
     private double[] sumOfLines(double[][] matrix){
         double[] temp = new double[matrix.length];
@@ -86,6 +97,7 @@ public class matrix {
         }
         return temp;
     }
+
     //решение без контроля
     public double[] solveByIterations(){
         double[] result = new double[rowAmount];
@@ -102,6 +114,8 @@ public class matrix {
         } while (Math.abs(result[0] - Math.abs(x)) >= epsilon);
         return result;
     }
+
+
     //решение с контролем
     public double[] solveByIterationsWithControl(){
         double[] result = new double[rowAmount];
@@ -140,11 +154,12 @@ public class matrix {
         } while (Math.abs(result[0] - Math.abs(x)) >= epsilon);
         return result;
     }
+
+
     //убираем 0 с диагонали
     public boolean removeZeroesFromDiagonal(int diag){
-
         //если можно сделать перестановку - делаем
-        if(checkForZeros())
+        if(checkSCC())
             return true;
         else if(diag >= rowAmount) return false;
         if(removeZeroesFromDiagonal(diag + 1))
@@ -155,35 +170,49 @@ public class matrix {
             swapElements(i, diag);
             if(removeZeroesFromDiagonal(diag + 1))
                 return true;
-            for (int q = 0; q < rowAmount; q++) {
-                System.out.print(combination[q] + " ");
-            }
-            System.out.println();
             swapElements(diag,i);
         }
         return false;
     }
+
+
     public int checkAnswer() {
         if(removeZeroesFromDiagonal(0)) {
             array = replaceWithCombination();
-            return 1;
-        }
-        if(checkForZeros()) {
             return 2;
         }
-        return 3;
+        combination = notNullCombination;
+        if(checkForZeros()) {
+            array = replaceWithCombination();
+            return 3;
+        }
+        return 1;
     }
 
     public double[][] replaceWithCombination(){
+        //for (int value : combination) System.out.print(value + " ");
+        //System.out.println();
         double[][] matrix = new double[rowAmount][];
         for (int i = 0; i < matrix.length; i ++){
             matrix[i] = array[combination[i]];
         }
+        this.array = matrix;
         return matrix;
     }
+
+
     private void swapElements(int i, int j){
         int temp = combination[i];
         combination[i] = combination[j];
         combination[j] = temp;
+    }
+
+    public void setCombination(int[] combination) {
+        this.combination = combination;
+    }
+
+    public void printCombination(){
+        for (int value: combination) System.out.print(value + " ");
+        System.out.println();
     }
 }

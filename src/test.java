@@ -15,7 +15,12 @@ public class test {
         int result;
         double[] array;
 
-        if (mat.checkForZeros()){
+        /*mat.setCombination(new int[]{1,3,2,0});
+        System.out.println(mat.checkForZeros());
+        mat.replaceWithCombination();
+        mat.print();*/
+
+        if (mat.checkForZeros()) {
             if (mat.checkSCC()) {
                 array = mat.solveByIterations();
                 printArray(array);
@@ -25,11 +30,12 @@ public class test {
                 if (array != null) printArray(array);
             }
         }
-        else{
+
+        else {
             result = mat.checkAnswer();
             getResult(result);
             mat.print();
-            if (result == 1){
+            if (result == 2){
                 array = mat.solveByIterations();
                 printArray(array);
             }
@@ -38,10 +44,9 @@ public class test {
                 if (array == null) getResult(1);
                 else printArray(array);
             }
-            else getResult(result);
         }
-
     }
+
 
     public static void getResult(int result) {
         switch (result) {

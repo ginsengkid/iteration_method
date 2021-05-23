@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/iterational_method.iml" filepath="$PROJECT_DIR$/iterational_method.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iterative_method.iml" filepath="$PROJECT_DIR$/iterative_method.iml" />
     </modules>
   </component>
 </project>
