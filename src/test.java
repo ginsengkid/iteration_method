@@ -6,8 +6,7 @@ public class test {
         matrix mat = new matrix();
         try {
             mat.init("D:\\file.txt");
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.out.println("FILE NOT FOUND!!!");
         }
         mat.print();
@@ -15,31 +14,29 @@ public class test {
         int result;
         double[] array;
 
-        /*mat.setCombination(new int[]{1,3,2,0});
-        System.out.println(mat.checkForZeros());
-        mat.replaceWithCombination();
+       /* System.out.println(mat.checkSCC(new int[]{0,1,2,3}));
+        mat.replaceWithCombination(new int[]{0,1,2,3});
         mat.print();*/
 
-        if (mat.checkForZeros()) {
-            if (mat.checkSCC()) {
+
+        if (mat.checkForZeros(mat.getCombination())) {
+            if (mat.checkSCC(mat.getCombination())) {
                 array = mat.solveByIterations();
                 printArray(array);
-            }
-            else {
+            } else {
                 array = mat.solveByIterationsWithControl();
                 if (array != null) printArray(array);
+                else getResult(1);
             }
-        }
-
-        else {
-            result = mat.checkAnswer();
+        } else {
+            result = mat.checkAnswer(mat.getCombination());
             getResult(result);
             mat.print();
-            if (result == 2){
+            if (result == 2) {
                 array = mat.solveByIterations();
                 printArray(array);
             }
-            if (result == 3){
+            if (result == 3) {
                 array = mat.solveByIterationsWithControl();
                 if (array == null) getResult(1);
                 else printArray(array);

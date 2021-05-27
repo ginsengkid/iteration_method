@@ -7,7 +7,6 @@ public class matrix {
     private int rowAmount, columnAmount;
     private double epsilon;
     private double [] sums;
-    private int[] combination;
     private int[] notNullCombination;
 
     private void create(int k, int l) {
@@ -36,14 +35,12 @@ public class matrix {
         rowAmount = Integer.parseInt(sn[0]);
         columnAmount = Integer.parseInt(sn[1]) + 1;
         epsilon = Math.pow(10, -Double.parseDouble(sn[2]) - 1);
-        combination = new int[rowAmount];
         notNullCombination = new int[rowAmount];
         this.create(rowAmount, columnAmount);
         int i, j;
         for (i = 0; i < rowAmount; i++) {
             str = scan.nextLine();
             sn = pat.split(str);
-            combination[i] = i; //init combintaion array
             notNullCombination[i] = i;
             for (j = 0; j < columnAmount; j++)
                 array[i][j] = Double.parseDouble(sn[j]);
@@ -59,7 +56,7 @@ public class matrix {
     }
 
 
-    public boolean checkForZeros() {
+    public boolean checkForZeros(int[] combination) {
         for (int i = 0; i < rowAmount; i++)
             if (compareToZero(array[combination[i]][i]))
                 return false;
@@ -67,23 +64,23 @@ public class matrix {
     }
 
     //проверка ДУС нашей изначальной системы
-    public boolean checkSCC() {
+    public boolean checkSCC(int[] combination) {
         boolean strictlyMore = false;
         boolean haveZeroes = false;
         boolean SCCworked = true;
         for (int i = 0; i < rowAmount; i++) {
             if (compareToZero(array[combination[i]][i])) haveZeroes = true;
-            double sum =  Math.abs(sums[combination[i]])  - Math.abs(array[combination[i]][i]) - Math.abs(array[combination[i]][i]);
-            if (sum < 0){
-                if (sum <= 0)
+            double sum = Math.abs(sums[combination[i]]) - Math.abs(array[combination[i]][i]) - Math.abs(array[combination[i]][i]);
+            if (sum <= 0) {
+                if (sum < 0)
                     strictlyMore = true;
-            }
-            else SCCworked = false;
+            } else SCCworked = false;
         }
-        //for (int value : notNullCombination) System.out.print(value);
-        //System.out.println();
-        if (!haveZeroes) System.arraycopy(combination, 0, notNullCombination, 0, rowAmount);
-        //printCombination();
+        if (!haveZeroes){
+            if (rowAmount >= 0) System.arraycopy(combination, 0, notNullCombination, 0, rowAmount);
+        }
+
+
         return strictlyMore && SCCworked;
     }
 
@@ -111,6 +108,7 @@ public class matrix {
                         summary -= result[j] * array[i][j];
                 result[i] = summary/array[i][i];
             }
+            System.out.println(Math.abs(result[0] - Math.abs(x)));
         } while (Math.abs(result[0] - Math.abs(x)) >= epsilon);
         return result;
     }
@@ -120,7 +118,7 @@ public class matrix {
     public double[] solveByIterationsWithControl(){
         double[] result = new double[rowAmount];
         double x, summary;
-        double delta = 0;
+        double delta;
         double localMaximum = Double.MIN_VALUE;
         int i, j;
         //проверка системы на сходимость через проверку первых 10 итераций
@@ -157,41 +155,39 @@ public class matrix {
 
 
     //убираем 0 с диагонали
-    public boolean removeZeroesFromDiagonal(int diag){
+    public boolean removeZeroesFromDiagonal(int diag, int[] combination){
         //если можно сделать перестановку - делаем
-        if(checkSCC())
+        if(checkSCC(combination))
             return true;
         else if(diag >= rowAmount) return false;
-        if(removeZeroesFromDiagonal(diag + 1))
+        if(removeZeroesFromDiagonal(diag + 1,combination))
             return true;
 
-        for (int i = diag + 1; i < rowAmount; i++)
-        {
-            swapElements(i, diag);
-            if(removeZeroesFromDiagonal(diag + 1))
+        for (int i = diag + 1; i < rowAmount; i++) {
+            swapElements(i, diag,combination);
+            if(removeZeroesFromDiagonal(diag + 1,combination))
                 return true;
-            swapElements(diag,i);
+            swapElements(diag,i,combination);
         }
+
         return false;
     }
 
 
-    public int checkAnswer() {
-        if(removeZeroesFromDiagonal(0)) {
-            array = replaceWithCombination();
+    public int checkAnswer(int[] combination) {
+        if(removeZeroesFromDiagonal(0,combination)) {
+            array = replaceWithCombination(combination);
             return 2;
         }
-        combination = notNullCombination;
-        if(checkForZeros()) {
-            array = replaceWithCombination();
+
+        if(checkForZeros(notNullCombination)) {
+            array = replaceWithCombination(notNullCombination);
             return 3;
         }
         return 1;
     }
 
-    public double[][] replaceWithCombination(){
-        //for (int value : combination) System.out.print(value + " ");
-        //System.out.println();
+    public double[][] replaceWithCombination(int[] combination){
         double[][] matrix = new double[rowAmount][];
         for (int i = 0; i < matrix.length; i ++){
             matrix[i] = array[combination[i]];
@@ -201,18 +197,18 @@ public class matrix {
     }
 
 
-    private void swapElements(int i, int j){
+    private void swapElements(int i, int j, int[] combination){
         int temp = combination[i];
         combination[i] = combination[j];
         combination[j] = temp;
     }
 
-    public void setCombination(int[] combination) {
-        this.combination = combination;
+    public int[] getCombination(){
+        int[] result = new int[rowAmount];
+        for (int i = 0; i < rowAmount; i++){
+            result[i] = i;
+        }
+        return result;
     }
 
-    public void printCombination(){
-        for (int value: combination) System.out.print(value + " ");
-        System.out.println();
-    }
 }
