@@ -108,7 +108,6 @@ public class matrix {
                         summary -= result[j] * array[i][j];
                 result[i] = summary/array[i][i];
             }
-            System.out.println(Math.abs(result[0] - Math.abs(x)));
         } while (Math.abs(result[0] - Math.abs(x)) >= epsilon);
         return result;
     }
